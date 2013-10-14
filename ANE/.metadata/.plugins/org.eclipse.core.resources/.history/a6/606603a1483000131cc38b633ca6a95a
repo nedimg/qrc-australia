@@ -1,0 +1,9 @@
+package net.homemade.volume.events
+{
+	public class VolumeEvent
+	{
+		public function VolumeEvent()
+		{
+		}
+	}
+}

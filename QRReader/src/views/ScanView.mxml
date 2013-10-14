@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" title="Scan" viewActivate="view1_viewActivateHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.sbhave.nativeExtensions.zbar.Scanner;
+			import com.sbhave.nativeExtensions.zbar.ScannerEvent;
+			
+			import flash.globalization.DateTimeStyle;
+			
+			import spark.events.ViewNavigatorEvent;
+			import spark.formatters.DateTimeFormatter;
+			
+			private var _scanner:Scanner;
+			private var _scannedString:String = null;
+			
+			protected function btn_clickHandler(event:MouseEvent):void
+			{
+				if(_scanner == null)
+				{
+					_scanner = new Scanner();
+					_scanner.setTargetArea(250,"0xFF00FF00","0xFFFF0000"); // Values are 0xAARRGGBB [Alpha, Red, Green, Blue]
+					_scanner.addEventListener(ScannerEvent.SCAN, onScan);
+				}
+				
+				_scanner.launch(false, "rear");	
+				
+				loader.visible = true;
+				
+			}
+			
+			private function onScan(e:ScannerEvent):void
+			{
+				_scannedString = e.data as String;
+				_scanner.stop();
+			}
+			
+			protected function view1_viewActivateHandler(event:ViewNavigatorEvent):void
+			{
+
+				//trace('view1_viewActivateHandler');
+				loader.visible = false;
+				
+				if(_scanner)
+					_scanner.stop();
+				
+				if(_scannedString)
+					parse(_scannedString);
+				
+				_scannedString = null;
+			}
+			
+			
+			private function clearInputs():void
+			{
+				salesNumberInput.text = "";
+				positionInput.text = "";
+				productionNrInput.text = "";
+				finnsInput.text = "";
+				finTubesInput.text = "";
+				scanResultText.text = "";
+				qcInput.text = "";
+				warrantyExpireDateInput.text = "";
+				detailedInput.text = "";
+			}
+			
+			
+			private function parse(result:String):void
+			{
+				
+				//	SalesNumber|Position|Detailed|DeliveryDate|ProductionNr|QC|Warranty|FinTubes|Finns
+				//	750005312|710-15188 000000000|GV 1641IV20 29C2880/ 6  29PC 6|30-09-2013|732015511|2208|18|2249358|2335230
+				
+				clearInputs();
+
+				var splittedData:Array = result.split("|")
+				
+				salesNumberInput.text = splittedData[0];	
+				positionInput.text = splittedData[1];	
+				detailedInput.text = splittedData[2];	
+				productionNrInput.text = splittedData[4];	
+				qcInput.text = splittedData[5];
+				var warrantyLenght:int = splittedData[6];	
+				finTubesInput.text = splittedData[7];	
+				finnsInput.text = splittedData[8];
+
+				var dtFormatter:DateTimeFormatter = new DateTimeFormatter();
+				dtFormatter.timeStyle = DateTimeStyle.NONE;
+				
+				var deliveryDate:Date = getDateFromString(splittedData[3]);
+				
+				deliveryDateInput.text = dtFormatter.format(deliveryDate);
+			
+				warrantyExpireDateInput.text = dtFormatter.format(new Date(deliveryDate.fullYear,deliveryDate.month + warrantyLenght,deliveryDate.date));
+
+				scanResultText.text = result;
+				
+			}
+			
+		private function getDateFromString(value:String):Date
+		{
+			var date:Date = new Date();
+			
+			date.date = int(value.split("-")[0]);
+			date.month = int(value.split("-")[1]) - 1;
+			date.fullYear = int(value.split("-")[2]);
+			
+			return date;
+		}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Scroller width="100%" height="100%">
+		<s:VGroup width="100%"  gap="10" clipAndEnableScrolling="true" paddingLeft="20" paddingRight="20">
+			<s:HGroup width="100%" paddingTop="20" paddingBottom="20" horizontalAlign="center">
+				<s:Button id="btn" label="Scan Product" click="btn_clickHandler(event)" height="60" />
+			</s:HGroup>
+			<s:Label text="Product Info:" fontSize="16" fontWeight="bold"/>
+			<s:Line width="100%" height="2">
+				<s:stroke>
+					<s:SolidColorStroke color="0x333333" weight="2"/>
+				</s:stroke>
+			</s:Line>
+			<s:HGroup width="100%">
+				<s:VGroup gap="5" width="50%">
+					<s:Label text="Sales Number:"/>
+					<s:TextInput id="salesNumberInput" width="100%"  editable="false"/>
+				</s:VGroup>
+				<s:VGroup gap="5" width="50%">
+					<s:Label text="Position:"/>
+					<s:TextInput id="positionInput" width="100%"  editable="false"/>
+				</s:VGroup>
+			</s:HGroup>
+			<s:HGroup width="100%">
+				<s:VGroup gap="5" width="100%">				
+					<s:Label text="Detailed:"/>
+					<s:TextInput id="detailedInput" width="100%" editable="false" />
+				</s:VGroup>
+			</s:HGroup>
+			<s:HGroup width="100%">
+				<s:VGroup gap="5" width="50%">				
+					<s:Label text="Fin Tubes:"/>
+					<s:TextInput id="finTubesInput" width="100%" editable="false" />
+				</s:VGroup>
+				<s:VGroup gap="5" width="50%">				
+					<s:Label text="Finns:"/>
+					<s:TextInput id="finnsInput" width="100%"  editable="false"/>
+				</s:VGroup>
+			</s:HGroup>
+			<s:HGroup width="100%">
+				<s:VGroup gap="5" width="50%">				
+					<s:Label text="Delivery Date:"/>
+					<s:TextInput id="deliveryDateInput" width="100%" editable="false" />
+				</s:VGroup>
+				<s:VGroup gap="5" width="50%">				
+					<s:Label text="Warranty expires:"/>
+					<s:TextInput id="warrantyExpireDateInput" width="100%"  editable="false"/>
+				</s:VGroup>
+			</s:HGroup>
+			<s:HGroup width="100%">
+				<s:VGroup gap="5" width="50%">				
+					<s:Label text="Production Nr:"/>
+					<s:TextInput id="productionNrInput" width="100%"  editable="false"/>
+				</s:VGroup>
+				<s:VGroup gap="5" width="50%">			
+					<s:Label text="QC"/>
+					<s:TextInput id="qcInput" width="100%"  editable="false"/>
+				</s:VGroup>
+			</s:HGroup>
+			
+			
+			<s:Spacer height="50" width="100%" />
+			<s:Line width="100%" height="2">
+				<s:stroke>
+					<s:SolidColorStroke color="0x333333" weight="2"/>
+				</s:stroke>
+			</s:Line>
+			<s:VGroup gap="5" width="100%">				
+				<s:Label text="Scanned data:"/>
+				<s:TextArea id="scanResultText" editable="false" width="100%" enabled="false" height="100">
+				</s:TextArea>
+			</s:VGroup>
+		</s:VGroup>
+	</s:Scroller>
+	
+	
+	<s:Group width="100%" height="100%" id="loader">
+		<s:BusyIndicator id="busyIndicator" width="50" height="50" x="{(loader.width-busyIndicator.width)/2}" y="{(loader.height-busyIndicator.height)/2}"/>
+		<s:Rect width="100%" height="100%">
+			<s:fill>
+				<s:SolidColor color="0x333333" alpha="0.35"/>
+			</s:fill>
+		</s:Rect>
+	</s:Group>
+</s:View>

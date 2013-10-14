@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" title="Home">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.coltware.airxmail.INetAddress;
+			import com.coltware.airxmail.MailSender.SMTPSender;
+			import com.coltware.airxmail.MimeMessage;
+			import com.coltware.airxmail.RecipientType;
+			import com.coltware.airxmail.smtp.SMTPClient;
+			import com.coltware.airxmail.smtp.SMTPEvent;
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				
+				var fromEmail:String = "nedim.g@gmail.com";
+				var toEmail:String = "nedim.g@gmail.com";
+				var smtpHost:String = "smtp.gmail.com";
+
+				//  How to send plain text email
+				var sender:SMTPSender = new SMTPSender();
+				sender.setParameter(SMTPSender.HOST,smtpHost);
+				sender.setParameter(SMTPSender.PORT,587);  // default port is 25
+				
+				// If you use SMTP-AUTH
+				//sender.setParameter(SMTPSender.SSL,true);
+				sender.setParameter(SMTPSender.AUTH,true);
+				sender.setParameter(SMTPSender.USERNAME,"nedim.g@gmail.com");
+				sender.setParameter(SMTPSender.PASSWORD,"MalaAjsa09");
+				sender.setParameter(SMTPSender.ENABLE_BUFFER,true);
+		
+				
+				sender.addEventListener("smtpAuthOk",function(e:SMTPEvent):void{
+					trace(e.type);
+				});
+				
+				
+				sender.addEventListener("smtpConnectionFailed",function(e:SMTPEvent):void{
+					trace(e.type);
+				});
+				
+				sender.addEventListener("smtpCommandError",function(e:SMTPEvent):void{
+					trace(e.type);
+				});
+				
+				sender.addEventListener(SecurityErrorEvent.SECURITY_ERROR,function(e:SecurityErrorEvent):void{
+					trace(e.type);
+				});
+				
+				sender.addEventListener("smtpAuthNg",function(e:SecurityErrorEvent):void{
+					trace(e.type);
+				});
+				
+				sender.addEventListener("smtpSentOk",function(e:SecurityErrorEvent):void{
+					trace(e.type);
+				});
+				
+				
+			}
+			
+		
+
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Button label="send email test" click="button1_clickHandler(event)"/>
+</s:View>

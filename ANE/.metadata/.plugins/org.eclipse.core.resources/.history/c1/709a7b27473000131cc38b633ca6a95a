@@ -1,0 +1,12 @@
+package
+{
+	import flash.events.EventDispatcher;
+
+	public class VolumeController extends EventDispatcher
+	{
+		public function VolumeController( enforcer:SingletonEnforcer )
+		{
+			super();
+		}
+	}
+}

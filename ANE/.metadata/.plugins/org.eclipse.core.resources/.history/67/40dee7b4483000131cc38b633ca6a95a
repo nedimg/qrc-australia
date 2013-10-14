@@ -1,0 +1,6 @@
+package net.homemade.volume.events{	import flash.events.Event;		public class VolumeEvent extends Event	{
+		/**		 * Disatched when the system volume on the decive changes. 		 */				public static const VOLUME_CHANGED:String = "volumeChanged";
+		/**		 * The system volume of the device. 		 */				public var volume:Number;
+
+		/**		 * Constructor.		 *  		 * @param type Event type.		 * @param volume The system volume.		 * @param bubbles Whether or not the event bubbles.		 * @param cancelable Whether or not the event is cancelable.		 */				public function VolumeEvent( type:String, volume:Number, bubbles:Boolean=false, cancelable:Boolean=false )		{			this.volume = volume;
+			super(type, bubbles, cancelable);		}	}}
